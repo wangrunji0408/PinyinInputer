@@ -14,7 +14,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="10.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="TextAnalyzer\" />
+    <Folder Include="NGramModel\" />
     <Folder Include="Inputer\" />
     <Folder Include="Base\" />
   </ItemGroup>

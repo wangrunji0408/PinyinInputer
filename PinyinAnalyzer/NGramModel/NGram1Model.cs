@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace PinyinAnalyzer
 {
-	public class TextAnalyzerOne: TextAnalyzer
+	public class NGram1Model: NGramModel
 	{
 		[JsonProperty("stat")]
 		readonly Statistic _stat = new Statistic();
@@ -25,15 +25,8 @@ namespace PinyinAnalyzer
 			}
 		}
 
-		public override IInputer BuildInputer()
+		protected override Statistic GetStatisticOnlyByChars(Condition condition)
 		{
-			throw new NotImplementedException();
-		}
-
-		public override Statistic GetStatistic(Condition condition)
-		{
-			if(condition.N != 0)
-				throw new NotImplementedException();
 			return _stat;
 		}
 	}

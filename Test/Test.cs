@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -23,6 +23,8 @@ namespace PinyinAnalyzer.Test
 			Assert.AreEqual(cond.Chars, "智导");
 			cond = cond.Reduce();
 			Assert.AreEqual(cond.Chars, "导");
+			Assert.AreEqual(cond.Chars.LastSubString(2, '^'), "^导");
+			Assert.AreEqual(cond.Chars.LastSubString(0, '^'), "");
 			cond = cond.Reduce();
 			Assert.AreEqual(cond.Chars, "");
 			Assert.AreEqual(cond1.Chars, "人智导");
@@ -39,26 +41,20 @@ namespace PinyinAnalyzer.Test
 		}
 
 		[Test]
-		public void TestAnalyzer()
+		public void TestModel2()
 		{ 
-			var analyzer = new TextAnalyzerBinary();
-			analyzer.Analyze("而且，候选人需获得三分之二选票才能当选，否则需举行第二轮投票。");
-			//var builder = new StringBuilder();
-			//analyzer.WriteTo(new StringWriter(builder));
-			//Console.WriteLine(builder.ToString());
-			Console.WriteLine(JsonConvert.SerializeObject(analyzer));
+			var model = new NGram2Model();
+			model.Analyze("而且，候选人需获得三分之二选票才能当选，否则需举行第二轮投票。");
+			Console.WriteLine(JsonConvert.SerializeObject(model));
 			Assert.Warn("Check the output.");
 		}
 
 		[Test]
-		public void Test3()
+		public void TestModel3()
 		{
-			var analyzer = new TextAnalyzerThree();
-			analyzer.Analyze("而且，候选人需获得三分之二选票才能当选，否则需举行第二轮投票。");
-			//var builder = new StringBuilder();
-			//analyzer.WriteTo(new StringWriter(builder));
-			//Console.WriteLine(builder.ToString());
-			Console.WriteLine(JsonConvert.SerializeObject(analyzer));
+			var model = new NGram3Model();
+			model.Analyze("而且，候选人需获得三分之二选票才能当选，否则需举行第二轮投票。");
+			Console.WriteLine(JsonConvert.SerializeObject(model));
 			Assert.Warn("Check the output.");
 		}
 

@@ -8,11 +8,14 @@ namespace PinyinAnalyzer
 	{
 		public int N => Chars.Length;
 		[JsonProperty]
-		public string Chars { get; private set; }
+		public string Chars { get; }
+		[JsonProperty]
+		public string Pinyin { get; }
 		public override string ToString() => Chars;
-		public Condition(string str)
+		public Condition(string str, string pinyin = "")
 		{
 			Chars = str;
+			Pinyin = pinyin;
 		}
 		public Condition Reduce()
 		{

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 
 namespace PinyinAnalyzer
 {
-	public class TextAnalyzerThree: TextAnalyzer
+	public class NGram3Model: NGramModel
 	{
 		//Dictionary<Condition, Statistic> _statisticDict = new Dictionary<Condition, Statistic>();
 		[JsonProperty("dict")]
@@ -17,11 +17,10 @@ namespace PinyinAnalyzer
 			_statisticDict.Select(pair => new KeyValuePair<Condition, Statistic>(
 				new Condition(pair.Key.ToString()), pair.Value));
 
-		public override Statistic GetStatistic(Condition condition)
+		protected override Statistic GetStatisticOnlyByChars(Condition condition)
 		{
-			if(condition.N != 2)
-				throw new NotImplementedException();
-			return GetStatistic(condition.Chars);
+			string chars = condition.Chars.LastSubString(2, '^');
+			return GetStatistic(chars);
 		}
 
 		public Statistic GetStatistic(string str)
@@ -44,11 +43,6 @@ namespace PinyinAnalyzer
 				GetStatistic(pre).Add(c);
 				pre = pre[1].ToString() + c;
 			}
-		}
-
-		public override IInputer BuildInputer()
-		{
-			throw new NotImplementedException();
 		}
 	}
 }

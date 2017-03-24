@@ -15,6 +15,8 @@ namespace PinyinAnalyzer
 			orderby pair.Value descending
 			select pair;
 
+		public bool IsEmpty => dict.Count == 0;
+
 		public float GetProbability(T key)
 		{
 			return dict.GetOrDefault(key);
@@ -80,7 +82,7 @@ namespace PinyinAnalyzer
 			int count = 10;
 			foreach (var pair in KeyProbDescending)
 			{
-				Console.Write($"{pair.Key}({pair.Value}),");
+				Console.WriteLine($"{pair.Key}({pair.Value})");
 				if (count-- == 0) break;
 			}
 			Console.WriteLine();
