@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.3</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Class1.cs" />
+    <Compile Remove="Class1.cs" />
+    <Compile Remove="Class1.cs" />
+    <Compile Remove="NoConditionState.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="TextAnalyzer\" />
+    <Folder Include="Inputer\" />
+    <Folder Include="Base\" />
+  </ItemGroup>
+</Project>
