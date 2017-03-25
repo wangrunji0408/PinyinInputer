@@ -9,6 +9,7 @@
     <Compile Remove="Class1.cs" />
     <Compile Remove="Class1.cs" />
     <Compile Remove="NoConditionState.cs" />
+    <Compile Remove="NGramModel\NGram123Model_Lambda.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.1" />

@@ -13,7 +13,7 @@ namespace PinyinAnalyzer
 		[JsonProperty("dict")]
 		Dictionary<string, Statistic> _statisticDict = new Dictionary<string, Statistic>();
 
-		protected override IEnumerable<KeyValuePair<Condition, Statistic>> CSPair =>
+		public override IEnumerable<KeyValuePair<Condition, Statistic>> Statistics =>
 			_statisticDict.Select(pair => new KeyValuePair<Condition, Statistic>(
 				new Condition(pair.Key.ToString()), pair.Value));
 
@@ -34,7 +34,7 @@ namespace PinyinAnalyzer
 			while(reader.Peek() != -1)
 			{
 				var c = (char)reader.Read();
-				if (!IsChineseChar(c))
+				if (!InCharSet(c))
 				{
 					pre = "^^";
 					continue;

@@ -29,19 +29,25 @@ namespace PinyinAnalyzer.Test
 		[Test]
 		public void TestNGram1()
 		{
-			TestOnData(NGramModelBuilder.LoadFromDefaultFile<NGram1Model>());
+			TestOnData(NGramModelFileLoader.Load<NGram1Model>());
 		}
 
 		[Test]
 		public void TestNGram2()
 		{
-			TestOnData(NGramModelBuilder.LoadFromDefaultFile<NGram2Model>());
+			TestOnData(NGramModelFileLoader.Load<NGram2Model>());
 		}
 
 		[Test]
 		public void TestNGram12()
 		{
-			TestOnData(NGramModelBuilder.Load12FromDefaultFile());
+			TestOnData(NGramModelFileLoader.Load12());
+		}
+
+		[Test]
+		public void TestNGram12_Lambda()
+		{
+			TestOnData(NGramModelFileLoader.Load12_Lambda());
 		}
 	}
 }

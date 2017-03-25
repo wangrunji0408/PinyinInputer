@@ -11,7 +11,7 @@ namespace PinyinAnalyzer
 		[JsonProperty("stat")]
 		readonly Statistic _stat = new Statistic();
 
-		protected override IEnumerable<KeyValuePair<Condition, Statistic>> CSPair =>
+		public override IEnumerable<KeyValuePair<Condition, Statistic>> Statistics =>
 			new[] { new KeyValuePair<Condition, Statistic>(new Condition(""), _stat) };
 
 		public override void Analyze(TextReader reader)
@@ -19,7 +19,7 @@ namespace PinyinAnalyzer
 			while (reader.Peek() != -1)
 			{
 				char c = (char)reader.Read();
-				if (!IsChineseChar(c))
+				if (!InCharSet(c))
 					continue;
 				_stat.Add(c);
 			}

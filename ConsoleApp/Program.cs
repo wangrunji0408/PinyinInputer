@@ -42,7 +42,7 @@ namespace PinyinAnalyzer.ConsoleApp
 
 		static void InputFile()
 		{
-			var model = NGramModelBuilder.LoadFromDefaultFile<NGram2Model>();
+			var model = NGramModelFileLoader.Load<NGram2Model>();
 			var inputer = new NGramInputer(model);
 			using (var outputWriter = File.CreateText(outputPath))
 			{
@@ -58,7 +58,7 @@ namespace PinyinAnalyzer.ConsoleApp
 
 		static void Input()
 		{
-			NGramModel model = NGramModelBuilder.Load12FromDefaultFile();
+			NGramModel model = NGramModelFileLoader.Load12();
 			model.PinyinDict = new PinyinDict(pinyinPath);
 			var inputer = new NGramInputer(model);
 			Console.WriteLine($"Using model: {model.GetType().Name}");
@@ -109,9 +109,9 @@ namespace PinyinAnalyzer.ConsoleApp
 
 		static void AskDistributeData()
 		{
-			NGramModel ng1 = NGramModelBuilder.LoadFromDefaultFile<NGram1Model>();
-			NGramModel ng2 = NGramModelBuilder.LoadFromDefaultFile<NGram2Model>();
-			NGramModel ng3 = NGramModelBuilder.LoadFromDefaultFile<NGram3Model>();
+			NGramModel ng1 = NGramModelFileLoader.Load<NGram1Model>();
+			NGramModel ng2 = NGramModelFileLoader.Load<NGram2Model>();
+			NGramModel ng3 = NGramModelFileLoader.Load<NGram3Model>();
 
 			while (true)
 			{

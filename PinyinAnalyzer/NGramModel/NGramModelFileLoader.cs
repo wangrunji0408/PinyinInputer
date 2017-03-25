@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace PinyinAnalyzer
 {
-	public static class NGramModelBuilder
+	public static class NGramModelFileLoader
 	{
 		static string path = "/Users/wangrunji/Documents/大学文件/大二下/课程文件/人工智能导论/拼音输入法/";
 		static string pinyinPath = $"{path}拼音汉字表/拼音汉字表.txt";
@@ -17,7 +17,7 @@ namespace PinyinAnalyzer
 		};
 		static PinyinDict pydict = new PinyinDict(pinyinPath);
 
-		public static TModel LoadFromDefaultFile<TModel> ()
+		public static TModel Load<TModel> ()
 			where TModel: NGramModel
 		{
 			TModel model;
@@ -31,13 +31,22 @@ namespace PinyinAnalyzer
 			return model;
 		}
 
-		public static NGram123Model Load12FromDefaultFile()
+		public static NGramBindModel Load12()
 		{
-			var ng1 = LoadFromDefaultFile<NGram1Model>();
-			var ng2 = LoadFromDefaultFile<NGram2Model>();
-			var ng3 = new NGram3Model();
-			var model = new NGram123Model(ng1, ng2, ng3);
+			var ng1 = Load<NGram1Model>();
+			var ng2 = Load<NGram2Model>();
+			var model = new NGramBindModel(new NGramModel[] { ng1, ng2 });
 			model.PinyinDict = pydict;
+			return model;
+		}
+
+		public static NGramBindModel Load12_Lambda()
+		{
+			var ng1 = Load<NGram1Model>();
+			var ng2 = Load<NGram2Model>();
+			var model = new NGramBindModel(new NGramModel[] { ng1, ng2 });
+			model.PinyinDict = pydict;
+			model.MixDistributeStrategy = NGramBindModel.MixDistributeStrategy_Lambda;
 			return model;
 		}
 	}
