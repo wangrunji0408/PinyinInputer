@@ -17,5 +17,6 @@
     <Folder Include="NGramModel\" />
     <Folder Include="Inputer\" />
     <Folder Include="Base\" />
+    <Folder Include="InputerTester\" />
   </ItemGroup>
 </Project>

@@ -10,9 +10,12 @@ namespace PinyinAnalyzer.ConsoleApp
 		static string path = "/Users/wangrunji/Documents/大学文件/大二下/课程文件/人工智能导论/拼音输入法/";
 		static string ngram1Path = $"{path}count1.txt";
 		static string ngram2Path = $"{path}count2.txt";
+		static string ngram3Path = $"{path}count3.txt";
 		static string pinyinPath = $"{path}拼音汉字表/拼音汉字表.txt";
 		static string inputPath = $"{path}input.txt";
 		static string outputPath = $"{path}output.txt";
+		static string testInputPath = $"{path}test_in.txt";
+		static string testOutputPath = $"{path}test_out.txt";
 
 		static void AnalyzeData(NGramModel analyzer, string dataPath)
 		{
@@ -37,22 +40,9 @@ namespace PinyinAnalyzer.ConsoleApp
 			}
 		}
 
-		static NGramModel LoadModel2()
-		{
-			NGramModel model;
-			using (var fileReader = File.OpenText(ngram2Path))
-			{
-				Console.WriteLine("Loading statistic file...");
-				model = new JsonSerializer().Deserialize<NGram2Model>(new JsonTextReader(fileReader));
-				Console.WriteLine("Success to load statistic file.");
-			}
-			model.PinyinDict = new PinyinDict(pinyinPath);
-			return model;
-		}
-
 		static void InputFile()
 		{
-			NGramModel model = LoadModel2();
+			var model = NGramModelBuilder.LoadFromDefaultFile<NGram2Model>();
 			var inputer = new NGramInputer(model);
 			using (var outputWriter = File.CreateText(outputPath))
 			{
@@ -68,7 +58,7 @@ namespace PinyinAnalyzer.ConsoleApp
 
 		static void Input()
 		{
-			NGramModel model = new NGram123Model();
+			NGramModel model = NGramModelBuilder.Load12FromDefaultFile();
 			model.PinyinDict = new PinyinDict(pinyinPath);
 			var inputer = new NGramInputer(model);
 			Console.WriteLine($"Using model: {model.GetType().Name}");
@@ -119,20 +109,9 @@ namespace PinyinAnalyzer.ConsoleApp
 
 		static void AskDistributeData()
 		{
-			NGramModel ng1, ng2;
-
-			Console.WriteLine("Loading statistic data...");
-			using (var fileReader = File.OpenText(ngram1Path))
-				ng1 = new JsonSerializer().Deserialize<NGram1Model>(new JsonTextReader(fileReader));
-			using (var fileReader = File.OpenText(ngram2Path))
-				ng2 = new JsonSerializer().Deserialize<NGram2Model>(new JsonTextReader(fileReader));
-			Console.WriteLine("Success to load statistic data.");
-
-			Console.WriteLine("Loading pinyin data...");
-			PinyinDict pydict = new PinyinDict(pinyinPath);
-			Console.WriteLine("Success to load pinyin data.");
-			ng1.PinyinDict = pydict;
-			ng2.PinyinDict = pydict;
+			NGramModel ng1 = NGramModelBuilder.LoadFromDefaultFile<NGram1Model>();
+			NGramModel ng2 = NGramModelBuilder.LoadFromDefaultFile<NGram2Model>();
+			NGramModel ng3 = NGramModelBuilder.LoadFromDefaultFile<NGram3Model>();
 
 			while (true)
 			{
@@ -147,6 +126,8 @@ namespace PinyinAnalyzer.ConsoleApp
 					ng1.GetDistribute(condition).Take(5).Print();
 					Console.WriteLine("2-gram");
 					ng2.GetDistribute(condition).Take(5).Print();
+					Console.WriteLine("3-gram");
+					ng3.GetDistribute(condition).Take(5).Print();
 				}
 				catch (Exception e)
 				{

@@ -19,26 +19,16 @@ namespace PinyinAnalyzer
 			set
 			{
 				base.PinyinDict = value;
-				ng1.PinyinDict = value;
-				ng2.PinyinDict = value;
-				ng3.PinyinDict = value;
+				foreach(var ng in ngs)
+					ng.PinyinDict = value;
 			}
 		}
 
-		public NGram123Model()
+		public NGram123Model(NGram1Model ng1, NGram2Model ng2, NGram3Model ng3)
 		{
-			string path = "/Users/wangrunji/Documents/大学文件/大二下/课程文件/人工智能导论/拼音输入法/";
-			string path1 = $"{path}count1.txt";
-			string path2 = $"{path}count2.txt";
-			//string path3 = $"{path}count3.txt";
-
-			using (var fileReader = File.OpenText(path1))
-				ng1 = new JsonSerializer().Deserialize<NGram1Model>(new JsonTextReader(fileReader));
-			using (var fileReader = File.OpenText(path2))
-				ng2 = new JsonSerializer().Deserialize<NGram2Model>(new JsonTextReader(fileReader));
-			ng3 = new NGram3Model();
-			//using (var fileReader = File.OpenText(path3))
-				//ng3 = new JsonSerializer().Deserialize<NGram3Model>(new JsonTextReader(fileReader));
+			this.ng1 = ng1;
+			this.ng2 = ng2;
+			this.ng3 = ng3;
 			ngs = new NGramModel[] { ng1, ng2, ng3 };
 		}
 

@@ -8,6 +8,9 @@ namespace PinyinAnalyzer
 	{
 		readonly NGramModel _model;
 
+		public bool TraceDistribute { get; set; } = true;
+		public List<Distribute<string>> Distributes { get; } = new List<Distribute<string>>();
+
 		public NGramInputer(NGramModel model)
 		{
 			_model = model;
@@ -22,6 +25,7 @@ namespace PinyinAnalyzer
 		{
 			base.Clear();
 			distribute = Distribute<string>.Single("");
+			Distributes.Clear();
 		}
 
 		public override void Input(string pinyin)
@@ -31,7 +35,8 @@ namespace PinyinAnalyzer
 			                                       .Take(10)
 			                                       .Select(c => str + c))
 			                       .Take(10);
-			distribute.Take(5).Print();
+			if (TraceDistribute)
+				Distributes.Add(distribute);
 		}
 	}
 }
