@@ -79,8 +79,21 @@ namespace PinyinAnalyzer.ConsoleApp
 	{
 		[Value(0, Required = true, HelpText = "统计信息")]
 		public string StatFile { get; set; }
-		[Option('m', HelpText = "模型名：1|2|3|n|12_Lambda")]
+		[Option('m', HelpText = "模型名：1|2|3|n")]
 		public IEnumerable<string> ModelNames { get; set; }
+	}
+
+	[Verb("test", HelpText = "在指定测试集上测试模型")]
+	class TestOption : IOption
+	{
+		[Value(0, Required = true, HelpText = "模型名：1|2|3|n|12m|12l|123l")]
+		public string ModelName { get; set; }
+
+		[Value(1, Required = true, MetaName = "FILE")]
+		public string InputFile { get; set; }
+
+		[Value(2, Required = false, MetaName = "FILE")]
+		public string OutputFile { get; set; }
 	}
 
 	class Program
@@ -88,15 +101,17 @@ namespace PinyinAnalyzer.ConsoleApp
 		static void Main(string[] args)
 		{
 			var result = CommandLine.Parser.Default.ParseArguments
-			                        <QPinyinOption, QSolveOption, QModelOption, QStatOption, SolveOption, AnalyzeOption, MergeOption, BuildOption>(args);
+			                        <QPinyinOption, QSolveOption, QModelOption, QStatOption, SolveOption, AnalyzeOption, MergeOption, BuildOption, TestOption>(args);
 			result.WithParsed<QPinyinOption>(opt => Function.QPinyin(opt.FilePath))
 				  .WithParsed<QSolveOption>(opt => Function.QSolve(opt.ModelName))
 				  .WithParsed<QModelOption>(opt => Function.QModel(opt.ModelName))
 				  .WithParsed<QStatOption>(opt => Function.QStatistic(opt.FilePath))
-				  .WithParsed<SolveOption>(opt => Function.Solve(opt.ModelName, opt.InputFile, opt.OutputFile))
+				  .WithParsed<SolveOption>(opt => Function.Solve(opt.InputFile, opt.OutputFile, opt.ModelName))
 				  .WithParsed<AnalyzeOption>(opt => Function.Analyze(opt.FilePaths, opt.OutputFile))
 				  .WithParsed<MergeOption>(opt => Function.Merge(opt.FilePaths, opt.OutputFile))
-			      .WithParsed<BuildOption>(opt => Function.BuildModel(opt.StatFile, opt.ModelNames));
+			      .WithParsed<BuildOption>(opt => Function.BuildModel(opt.StatFile, opt.ModelNames))
+			      .WithParsed<TestOption>(opt => Function.TestOnData(opt.ModelName, opt.InputFile, opt.OutputFile));
+			
 		}
 	}
 }

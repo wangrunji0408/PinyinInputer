@@ -43,9 +43,9 @@ namespace PinyinAnalyzer
 				case "1": return Load<NGram1Model>();
 				case "2": return Load<NGram2Model>();
 				case "3": return Load<NGram3Model>();
-				case "12MaxN": return Load12_MaxN();
-				case "12Lambda": return Load12_Lambda();
-				case "123Lambda": return Load123_Lambda();
+				case "12m": return Load12_MaxN();
+				case "12l": return Load12_Lambda();
+				case "123l": return Load123_Lambda();
 				case "n": return Load<NGramNModel>();
 				default: throw new ArgumentException();
 			}

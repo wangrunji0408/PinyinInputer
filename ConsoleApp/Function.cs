@@ -162,5 +162,22 @@ namespace PinyinAnalyzer.ConsoleApp
 				model.Save();
 			}
 		}
+
+		public static void TestOnData(string modelName, string inputFilePath, string outputFilePath)
+		{
+			var model = NGramModelFileLoader.LoadByName(modelName);
+			PinyinDict pydict = model.PinyinDict;
+			var inputer = new NGramInputer(model);
+			var tester = new InputerTester(inputer, pydict);
+
+			using (var inputFile = File.OpenText(inputFilePath))
+			{
+				if (outputFilePath == null)
+					tester.TestData(inputFile, Console.Out);
+				else
+					using (var outputFile = File.CreateText(outputFilePath))
+						tester.TestData(inputFile, outputFile);
+			}
+		}
 	}
 }
