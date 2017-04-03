@@ -5,15 +5,21 @@ using System;
 
 namespace PinyinAnalyzer
 {
-    public class PinyinDict
-    {
-		Dictionary<char, List<string>> _charToPinyins = new Dictionary<char, List<string>>();
-		Dictionary<string, SortedSet<char>> _pinyinToChars = new Dictionary<string, SortedSet<char>>();
+	public class PinyinDict
+	{
+		IDictionary<char, List<string>> _charToPinyins = new Dictionary<char, List<string>>();
+		IDictionary<string, SortedSet<char>> _pinyinToChars = new Dictionary<string, SortedSet<char>>();
+		ICollection<string> Pinyins => _pinyinToChars.Keys;
 
-		public List<string> GetPinyins(char c)
-        {
+		public ICollection<string> GetPinyins(char c)
+		{
 			return _charToPinyins.GetOrDefault(c);
-        }
+		}
+
+		public IEnumerable<string> GetPinyinsStartsWith(string str)
+		{
+			return Pinyins.Where(py => py.StartsWith(str));
+		}
 
 		public ISet<char> GetChars(string pinyin)
 		{
@@ -26,21 +32,25 @@ namespace PinyinAnalyzer
 			_charToPinyins.GetOrAddDefault(c).Add(pinyin);
 		}
 
-        public void Load(string filePath)
-        {
-            foreach (var line in File.ReadLines(filePath))
+		public void Load(string filePath)
+		{
+			foreach (var line in File.ReadLines(filePath))
 			{
-                var tokens = line.Split();
-                var pinyin = tokens[0];
+				var tokens = line.Split();
+				var pinyin = tokens[0];
 				foreach (var s in tokens.Skip(1))
 					Add(s[0], pinyin);
-            }
-        }
+			}
+		}
 
 		public PinyinDict() { }
 		public PinyinDict(string filePath)
 		{
 			Load(filePath);
 		}
-    }
+
+		static string defaultPath = $"/Users/wangrunji/Documents/大学文件/大二下/课程文件/人工智能导论/拼音输入法/拼音汉字表/拼音汉字表.txt";
+		static Lazy<PinyinDict> lazyInstance = new Lazy<PinyinDict>(() => new PinyinDict(defaultPath));
+		public static PinyinDict Instance => lazyInstance.Value;
+	}
 }

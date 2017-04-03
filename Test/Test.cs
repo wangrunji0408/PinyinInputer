@@ -13,6 +13,13 @@ namespace PinyinAnalyzer.Test
 	public class Test
 	{
 		[Test]
+		public void TestDirectory()
+		{
+			//var path = Directory.GetDirectoryRoot("/Users/wangrunji/Documents/大学文件/大二下/课程文件/人工智能导论/拼音输入法/sina_news/");
+			//Console.WriteLine(path);
+		}
+
+		[Test]
 		public void TestCondition()
 		{
 			var cond1 = new Condition("人智导");
@@ -40,24 +47,23 @@ namespace PinyinAnalyzer.Test
 			Assert.True(pydic.GetPinyins('行').Contains("hang"));
 		}
 
-		[Test]
-		public void TestModel2()
-		{ 
-			var model = new NGram2Model();
-			model.Analyze("而且，候选人需获得三分之二选票才能当选，否则需举行第二轮投票。");
-			Console.WriteLine(JsonConvert.SerializeObject(model));
-			Assert.Warn("Check the output.");
-		}
+		//[Test]
+		//public void TestModel2()
+		//{ 
+		//	var model = new NGram2Model_DictDict();
+		//	model.Analyze("而且，候选人需获得三分之二选票才能当选，否则需举行第二轮投票。");
+		//	Console.WriteLine(JsonConvert.SerializeObject(model));
+		//	Assert.Warn("Check the output.");
+		//}
 
-		[Test]
-		public void TestModel3()
-		{
-			var model = new NGram3Model();
-			model.Analyze("而且，候选人需获得三分之二选票才能当选，否则需举行第二轮投票。");
-			Console.WriteLine(JsonConvert.SerializeObject(model));
-			Assert.Warn("Check the output.");
-		}
-
+		//[Test]
+		//public void TestModel3()
+		//{
+		//	var model = new NGram3Model();
+		//	model.Analyze("而且，候选人需获得三分之二选票才能当选，否则需举行第二轮投票。");
+		//	Console.WriteLine(JsonConvert.SerializeObject(model));
+		//	Assert.Warn("Check the output.");
+		//}
 
 		[Test]
 		public void TestDistribute()

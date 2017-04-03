@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,11 +7,11 @@ namespace PinyinAnalyzer
 {
 	public class InputerTester
 	{
-		PinyinInputer Inputer { get; set; }
+		FullPinyinInputer Inputer { get; set; }
 		PinyinDict PinyinDict { get; set; }
 		public ModelCount Result { get; }
 
-		public InputerTester(PinyinInputer inputer, PinyinDict pydict)
+		public InputerTester(FullPinyinInputer inputer, PinyinDict pydict)
 		{
 			Inputer = inputer;
 			PinyinDict = pydict;
@@ -25,7 +25,9 @@ namespace PinyinAnalyzer
 			Inputer.Clear();
 			foreach (var pinyin in pinyins)
 				Inputer.Input(pinyin);
-			var result = Inputer.Results.First();
+			string result = "";
+			if(Inputer.Results.Count() != 0)
+				result = Inputer.Results.First();
 			return new SentenseCompare(sentense, result);
 		}
 

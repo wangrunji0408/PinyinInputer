@@ -5,15 +5,17 @@ using Newtonsoft.Json;
 
 namespace PinyinAnalyzer
 {
-	[JsonObject(MemberSerialization.OptIn)]
+	[Serializable, JsonObject(MemberSerialization.OptIn)]
 	public class Distribute<T>
 	{
-		[JsonProperty]
-		Dictionary<T, float> dict = new Dictionary<T, float>();
+		[JsonProperty("dict")]
+		IDictionary<T, float> dict = new Dictionary<T, float>();
+
 		public IEnumerable<KeyValuePair<T, float>> KeyProbDescending =>
-			from pair in dict
-			orderby pair.Value descending
-			select pair;
+			from pair in dict orderby pair.Value descending select pair;
+
+		public IEnumerable<KeyValuePair<T, float>> KeyProbAscending =>
+			from pair in dict orderby pair.Value select pair;
 
 		public bool IsEmpty => dict.Count == 0;
 
@@ -22,7 +24,7 @@ namespace PinyinAnalyzer
 			return dict.GetOrDefault(key);
 		}
 
-		private Distribute()
+		public Distribute()
 		{
 			
 		}
@@ -34,11 +36,21 @@ namespace PinyinAnalyzer
 			Normalize();
 		}
 
+		static public Distribute<T> Empty()
+		{
+			return new Distribute<T>();
+		}
+
 		static public Distribute<T> Single(T key)
 		{
 			var obj = new Distribute<T>();
 			obj.dict.Add(key, 1);
 			return obj;
+		}
+
+		static public Distribute<T> Evenly(params T[] keys)
+		{
+			return new Distribute<T>(keys.Select(key => new KeyValuePair<T, float>(key, 1)));
 		}
 
 		void Normalize()

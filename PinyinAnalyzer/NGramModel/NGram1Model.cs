@@ -6,28 +6,28 @@ using Newtonsoft.Json;
 
 namespace PinyinAnalyzer
 {
-	public class NGram1Model: NGramModel
+	[Serializable]
+	public class NGram1Model: NGramModelBase
 	{
-		[JsonProperty("stat")]
-		readonly Statistic _stat = new Statistic();
+		[JsonProperty]
+		Distribute<char> dtb = new Distribute<char>();
 
-		public override IEnumerable<KeyValuePair<Condition, Statistic>> Statistics =>
-			new[] { new KeyValuePair<Condition, Statistic>(new Condition(""), _stat) };
-
-		public override void Analyze(TextReader reader)
+		public override Distribute<char> GetDistribute(string pre)
 		{
-			while (reader.Peek() != -1)
-			{
-				char c = (char)reader.Read();
-				if (!InCharSet(c))
-					continue;
-				_stat.Add(c);
-			}
+			return dtb;
 		}
-
-		protected override Statistic GetStatisticOnlyByChars(Condition condition)
+		public override void FromStatistician(TextStatistician stat)
 		{
-			return _stat;
+			var stat0 = new Statistic<char>();
+			foreach (var pair in stat.StringFrequency)
+			{
+				if (pair.Key.Length != 1)
+					continue;
+				char c = pair.Key[0];
+				int freq = pair.Value;
+				stat0.Add(c, freq);
+			}
+			dtb = stat0.ToDistribute();
 		}
 	}
 }

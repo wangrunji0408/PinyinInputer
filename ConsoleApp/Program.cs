@@ -1,155 +1,102 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Collections.Generic;
+using CommandLine;
 
 namespace PinyinAnalyzer.ConsoleApp
 {
+	interface IOption
+	{
+		
+	}
+
+	[Verb("qpinyin", HelpText = "交互查询拼音数据库")]
+	class QPinyinOption: IOption
+	{
+		[Value(0, MetaName = "FILE", HelpText = "数据库文件地址")]
+		public string FilePath { get; set; }
+	}
+
+	[Verb("solve", HelpText = "输入拼音文件，输出汉字序列")]
+	class SolveOption : IOption
+	{
+		[Value(0, Required = true, MetaName = "FILE")]
+		public string InputFile { get; set; }
+
+		[Value(1, Required = true, MetaName = "FILE")]
+		public string OutputFile { get; set; }
+
+		[Value(2, Default = "n", MetaName = "NAME")]
+		public string ModelName { get; set; }
+	}
+
+	[Verb("qsolve", HelpText = "交互翻译拼音")]
+	class QSolveOption : IOption
+	{
+		[Value(0, Default = "n", MetaName = "NAME")]
+		public string ModelName { get; set; }
+	}
+
+	[Verb("qmodel", HelpText = "交互查询语言模型的概率分布")]
+	class QModelOption : IOption
+	{
+		[Value(0, Default = "n", MetaName = "NAME")]
+		public string ModelName { get; set; }
+	}
+
+	[Verb("qstat", HelpText = "交互查询文本统计结果")]
+	class QStatOption : IOption
+	{
+		[Value(0, MetaName = "FILE")]
+		public string FilePath { get; set; }
+	}
+
+	[Verb("analyze", HelpText = "执行文本统计")]
+	class AnalyzeOption : IOption
+	{
+		[Value(0, MetaName = "FILE", Required = true, HelpText = "待统计的文件")]
+		public IEnumerable<string> FilePaths { get; set; }
+
+		[Option('o', HelpText = "（可选项）输出文件地址。若指定，则合并所有文件统计信息，保存到指定文件；若未指定，则对每个文件在旁边生成独自的统计信息。")]
+		public string OutputFile { get; set; }
+
+		public bool Merge => OutputFile != "";
+	}
+
+	[Verb("merge", HelpText = "合并统计文件")]
+	class MergeOption : IOption
+	{
+		[Value(0, MetaName = "FILE", Required = true, HelpText = "待合并的统计信息，csv格式")]
+		public IEnumerable<string> FilePaths { get; set; }
+
+		[Value(1, Required = true, HelpText = "合并后保存到的文件地址")]
+		public string OutputFile { get; set; }
+	}
+
+	[Verb("build", HelpText = "根据统计文件生成语言模型")]
+	class BuildOption : IOption
+	{
+		[Value(0, Required = true, HelpText = "统计信息")]
+		public string StatFile { get; set; }
+		[Option('m', HelpText = "模型名：1|2|3|n|12_Lambda")]
+		public IEnumerable<string> ModelNames { get; set; }
+	}
+
 	class Program
 	{
-		static string path = "/Users/wangrunji/Documents/大学文件/大二下/课程文件/人工智能导论/拼音输入法/";
-		static string ngram1Path = $"{path}count1.txt";
-		static string ngram2Path = $"{path}count2.txt";
-		static string ngram3Path = $"{path}count3.txt";
-		static string pinyinPath = $"{path}拼音汉字表/拼音汉字表.txt";
-		static string inputPath = $"{path}input.txt";
-		static string outputPath = $"{path}output.txt";
-		static string testInputPath = $"{path}test_in.txt";
-		static string testOutputPath = $"{path}test_out.txt";
-
-		static void AnalyzeData(NGramModel analyzer, string dataPath)
-		{
-			for (int i = 1; i <= 11; ++i)
-			{
-				string filePath = $"{path}sina_news/2016-{i:00}.txt";
-				Console.WriteLine($"Analyzing: 2016-{i:00}.txt");
-				using (var fileReader = File.OpenText(filePath))
-				{
-					DateTime t0 = DateTime.Now;
-					analyzer.Analyze(fileReader);
-					TimeSpan ts = DateTime.Now - t0;
-					Console.WriteLine($"Analyze End: 2016-{i:00}.txt Time = {ts}");
-				}
-			}
-			using (var fileWriter = File.CreateText(dataPath))
-			{
-				DateTime t0 = DateTime.Now;
-				new JsonSerializer().Serialize(fileWriter, analyzer);
-				TimeSpan ts = DateTime.Now - t0;
-				Console.WriteLine($"Write End. Time = {ts}");
-			}
-		}
-
-		static void InputFile()
-		{
-			var model = NGramModelFileLoader.Load<NGram2Model>();
-			var inputer = new NGramInputer(model);
-			using (var outputWriter = File.CreateText(outputPath))
-			{
-				foreach (string input in File.ReadLines(inputPath))
-				{
-					inputer.Clear();
-					foreach (string pinyin in input.Split())
-						inputer.Input(pinyin);
-					outputWriter.WriteLine(inputer.Results.First());
-				}
-			}
-		}
-
-		static void Input()
-		{
-			NGramModel model = NGramModelFileLoader.Load12();
-			model.PinyinDict = new PinyinDict(pinyinPath);
-			var inputer = new NGramInputer(model);
-			Console.WriteLine($"Using model: {model.GetType().Name}");
-
-			while(true)
-			{
-				Console.Write("input > ");
-				var input = Console.ReadLine();
-				try
-				{
-					inputer.Clear();
-					foreach (string pinyin in input.Split())
-						inputer.Input(pinyin);
-					Console.WriteLine(inputer.Results.First());
-				}
-				catch (Exception e)
-				{
-					Console.WriteLine(e);
-				}
-			}
-		}
-
-		static void AskPinyin()
-		{
-			var pydict = new PinyinDict(pinyinPath);
-			while (true)
-			{
-				Console.Write("pinyin > ");
-				var input = Console.ReadLine();
-				if (input == "")
-					continue;
-				var chars = pydict.GetChars(input);
-				var pinyins = pydict.GetPinyins(input[0]);
-				if (chars.Count != 0)
-				{
-					foreach (char c in chars)
-						Console.Write(c);
-					Console.WriteLine();
-				}
-				else if (pinyins.Count != 0)
-				{
-					foreach (string py in pinyins)
-						Console.Write(py + " ");
-					Console.WriteLine();
-				}
-			}
-		}
-
-		static void AskDistributeData()
-		{
-			NGramModel ng1 = NGramModelFileLoader.Load<NGram1Model>();
-			NGramModel ng2 = NGramModelFileLoader.Load<NGram2Model>();
-			NGramModel ng3 = NGramModelFileLoader.Load<NGram3Model>();
-
-			while (true)
-			{
-				Console.Write("data > ");
-				var input = Console.ReadLine(); // [char]+ [pinyin]
-				string chars = input.Split()[0];
-				string pinyin = input.Split().ElementAtOrDefault(1);
-				var condition = new Condition(chars, pinyin);
-				try
-				{
-					Console.WriteLine("1-gram");
-					ng1.GetDistribute(condition).Take(5).Print();
-					Console.WriteLine("2-gram");
-					ng2.GetDistribute(condition).Take(5).Print();
-					Console.WriteLine("3-gram");
-					ng3.GetDistribute(condition).Take(5).Print();
-				}
-				catch (Exception e)
-				{
-					Console.WriteLine(e);
-				}
-
-			}
-		}
-
 		static void Main(string[] args)
 		{
-			if (args.Length >= 1)
-			{
-				switch (args[0])
-				{
-					case "pinyin": AskPinyin(); break;
-					case "input": Input(); break;
-					case "data": AskDistributeData(); break;
-					case "analyze1": AnalyzeData(new NGram1Model(), ngram1Path); break;
-					case "analyze2": AnalyzeData(new NGram2Model(), ngram2Path); break;
-				}
-			}
+			var result = CommandLine.Parser.Default.ParseArguments
+			                        <QPinyinOption, QSolveOption, QModelOption, QStatOption, SolveOption, AnalyzeOption, MergeOption, BuildOption>(args);
+			result.WithParsed<QPinyinOption>(opt => Function.QPinyin(opt.FilePath))
+				  .WithParsed<QSolveOption>(opt => Function.QSolve(opt.ModelName))
+				  .WithParsed<QModelOption>(opt => Function.QModel(opt.ModelName))
+				  .WithParsed<QStatOption>(opt => Function.QStatistic(opt.FilePath))
+				  .WithParsed<SolveOption>(opt => Function.Solve(opt.ModelName, opt.InputFile, opt.OutputFile))
+				  .WithParsed<AnalyzeOption>(opt => Function.Analyze(opt.FilePaths, opt.OutputFile))
+				  .WithParsed<MergeOption>(opt => Function.Merge(opt.FilePaths, opt.OutputFile))
+			      .WithParsed<BuildOption>(opt => Function.BuildModel(opt.StatFile, opt.ModelNames));
 		}
 	}
 }

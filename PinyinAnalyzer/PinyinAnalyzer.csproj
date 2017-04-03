@@ -1,9 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Remove="Class1.cs" />
     <Compile Remove="Class1.cs" />
@@ -13,11 +11,14 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.1" />
+    <PackageReference Include="NLog" Version="5.0.0-beta06" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="NGramModel\" />
     <Folder Include="Inputer\" />
     <Folder Include="Base\" />
     <Folder Include="InputerTester\" />
+    <Folder Include="Obsolete\" />
+    <Folder Include="TextStatistician\" />
   </ItemGroup>
 </Project>
