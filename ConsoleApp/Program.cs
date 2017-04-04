@@ -58,10 +58,14 @@ namespace PinyinAnalyzer.ConsoleApp
 		[Value(0, MetaName = "FILE", Required = true, HelpText = "待统计的文件")]
 		public IEnumerable<string> FilePaths { get; set; }
 
-		[Option('o', HelpText = "（可选项）输出文件地址。若指定，则合并所有文件统计信息，保存到指定文件；若未指定，则对每个文件在旁边生成独自的统计信息。")]
+	    [Option('m', HelpText = "是否合并统计结果。若是，需指定输出文件地址。")]
+	    public bool Merge { get; set; }
+
+	    [Option('o', HelpText = "输出文件地址")]
 		public string OutputFile { get; set; }
 
-		public bool Merge => OutputFile != "";
+	    [Option('d', HelpText = "输出目录。若不指定则为每个文件的所在目录。")]
+	    public string OutputDir { get; set; }
 	}
 
 	[Verb("merge", HelpText = "合并统计文件")]
@@ -70,7 +74,7 @@ namespace PinyinAnalyzer.ConsoleApp
 		[Value(0, MetaName = "FILE", Required = true, HelpText = "待合并的统计信息，csv格式")]
 		public IEnumerable<string> FilePaths { get; set; }
 
-		[Value(1, Required = true, HelpText = "合并后保存到的文件地址")]
+		[Option('o', Required = true, HelpText = "合并后保存到的文件地址")]
 		public string OutputFile { get; set; }
 	}
 
@@ -107,7 +111,7 @@ namespace PinyinAnalyzer.ConsoleApp
 				  .WithParsed<QModelOption>(opt => Function.QModel(opt.ModelName))
 				  .WithParsed<QStatOption>(opt => Function.QStatistic(opt.FilePath))
 				  .WithParsed<SolveOption>(opt => Function.Solve(opt.InputFile, opt.OutputFile, opt.ModelName))
-				  .WithParsed<AnalyzeOption>(opt => Function.Analyze(opt.FilePaths, opt.OutputFile))
+				  .WithParsed<AnalyzeOption>(opt => Function.Analyze(opt.FilePaths, opt.Merge, opt.OutputFile, opt.OutputDir))
 				  .WithParsed<MergeOption>(opt => Function.Merge(opt.FilePaths, opt.OutputFile))
 			      .WithParsed<BuildOption>(opt => Function.BuildModel(opt.StatFile, opt.ModelNames))
 			      .WithParsed<TestOption>(opt => Function.TestOnData(opt.ModelName, opt.InputFile, opt.OutputFile));

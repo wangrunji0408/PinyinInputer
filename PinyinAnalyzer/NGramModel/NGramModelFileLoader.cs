@@ -2,13 +2,13 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
 
 namespace PinyinAnalyzer
 {
 	public static class NGramModelFileLoader
 	{
-		static readonly string path = "/Users/wangrunji/Documents/大学文件/大二下/课程文件/人工智能导论/拼音输入法/";
-		//static readonly Dictionary<Type, string> ngramPath = new Dictionary<Type, string>
+	    //static readonly Dictionary<Type, string> ngramPath = new Dictionary<Type, string>
 		//{
 		//	[typeof(NGram1Model)] = $"{path}new_1gram.txt",
 		//    [typeof(NGram2Model)] = $"{path}new_2gram_1.txt",
@@ -17,11 +17,9 @@ namespace PinyinAnalyzer
 		//};
 		//public static PinyinDict pydict { get; } = new PinyinDict(pinyinPath);
 
-		//static Logger logger = LogManager.GetCurrentClassLogger();
-
 		static string GetPath(Type type)
 		{
-			return $"{path}{type.Name}.txt";
+			return $"{GlobalConfig.ModelDirectory}{type.Name}.txt";
 		}
 
 		public static NGramModelBase NewByName(string modelName)

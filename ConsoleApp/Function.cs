@@ -7,28 +7,16 @@ namespace PinyinAnalyzer.ConsoleApp
 {
 	public static class Function
 	{
-		//static string path = "/Users/wangrunji/Documents/大学文件/大二下/课程文件/人工智能导论/拼音输入法/";
-		//static string ngram1Path = $"{path}count1.txt";
-		//static string ngram2Path = $"{path}count2.txt";
-		//static string ngram3Path = $"{path}count3.txt";
-		//static string pinyinPath = $"{path}拼音汉字表/拼音汉字表.txt";
-		//static string statPath = $"{path}stat.csv";
-		//static string inputPath = $"{path}input.txt";
-		//static string outputPath = $"{path}output.txt";
-		//static string testInputPath = $"{path}test_in.txt";
-		//static string testOutputPath = $"{path}test_out.txt";
-
-		public static void Analyze(IEnumerable<string> filePaths, string outputFile = null)
+		public static void Analyze(IEnumerable<string> filePaths, bool merge, string outputFile = null, string outputDir = null)
 		{
-			if (outputFile == null)
-				TextStatistic.AnalyzeFilesSeparately(filePaths);
-			else
+			if (merge)
 				TextStatistic.AnalyzeFiles(filePaths, outputFile);
+		    else
+			    TextStatistic.AnalyzeFilesSeparately(filePaths, outputDir);
 		}
 
 		public static void Merge(IEnumerable<string> filePaths, string outputFile)
 		{
-			//var paths = Enumerable.Range(1, 11).Select(i => $"{path}sina_news/2016-{i:00}.txt_stat.csv");
 			TextStatistic.MergeFiles(filePaths, outputFile);
 		}
 

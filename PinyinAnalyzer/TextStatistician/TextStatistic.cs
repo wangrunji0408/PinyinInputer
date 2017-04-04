@@ -2,7 +2,6 @@
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using NLog;
 
 namespace PinyinAnalyzer
 {
@@ -10,7 +9,6 @@ namespace PinyinAnalyzer
 	{
 		//static string path = "/Users/wangrunji/Documents/大学文件/大二下/课程文件/人工智能导论/拼音输入法/";
 		//static string statPath = $"{path}stat.csv";
-		//static Logger logger = LogManager.GetCurrentClassLogger();
 
 		static void DoAndPrintTime(Action action, string title = "")
 		{
@@ -40,12 +38,12 @@ namespace PinyinAnalyzer
 			DoAndPrintTime(() => statistician.Save(statPath), $"Writing to file: {statPath}");
 		}
 
-		public static void AnalyzeFilesSeparately(IEnumerable<string> filePaths)
+		public static void AnalyzeFilesSeparately(IEnumerable<string> filePaths, string outputDir = null)
 		{
 			foreach (var filePath in filePaths)
 			{
 				var fileInfo = new FileInfo(filePath);
-				var outFilePath = $"{fileInfo.Directory}/{fileInfo.Name}_stat.csv";
+				var outFilePath = $"{outputDir ?? fileInfo.DirectoryName}/{fileInfo.Name}_stat.csv";
 				var statistician = new TextStatistician();
 				DoAndPrintTime(() => 
 				{ 

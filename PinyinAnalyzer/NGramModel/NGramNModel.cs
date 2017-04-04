@@ -15,12 +15,15 @@ namespace PinyinAnalyzer
 		[JsonProperty]
 		Dictionary<string, Distribute<char>> dict = new Dictionary<string, Distribute<char>>();
 
+	    public Func<IEnumerable<Distribute<char>>, Distribute<char>> MixDistributeStrategy { get; set; }
+	        = NGramBindModel.MixDistributeStrategy_Lambda;
+
 		public override Distribute<char> GetDistribute(Condition condition)
 		{
 			var list = new List<Distribute<char>>();
 			for (int n = 0; ; ++n)
 			{
-				var dtb = dict.GetOrDefault(condition.Chars.LastSubString(n, '^'));
+				var dtb = dict.GetOrDefault(condition.Chars.LastSubString(n, ' '));
 				if (condition.Pinyin != null)
 					dtb = dtb.Where(c => PinyinDict.GetPinyins(c).Contains(condition.Pinyin));
 				if (dtb.IsEmpty)
@@ -28,7 +31,7 @@ namespace PinyinAnalyzer
 				list.Add(dtb);
 			}
 			//Console.WriteLine($"{condition} {list.Count-1}");
-			return list[list.Count - 1];
+		    return MixDistributeStrategy(list);
 		}
 		public override Distribute<char> GetDistribute(string pre)
 		{

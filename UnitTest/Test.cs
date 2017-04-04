@@ -1,53 +1,50 @@
-using NUnit.Framework;
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Runtime;
-using System.Text;
+using System.ComponentModel;
 using Newtonsoft.Json;
-
+using Xunit;
 
 namespace PinyinAnalyzer.Test
 {
-	[TestFixture()]
 	public class Test
 	{
-		[Test]
+		[Fact]
 		public void TestDirectory()
 		{
 			//var path = Directory.GetDirectoryRoot("/Users/wangrunji/Documents/大学文件/大二下/课程文件/人工智能导论/拼音输入法/sina_news/");
 			//Console.WriteLine(path);
 		}
 
-		[Test]
+		[Fact]
 		public void TestCondition()
 		{
 			var cond1 = new Condition("人智导");
 			var cond = cond1;
-			Assert.AreEqual(cond.N, 3);
-			Assert.AreEqual(cond.Chars, "人智导");
+			Assert.Equal(cond.N, 3);
+			Assert.Equal(cond.Chars, "人智导");
 			cond = cond.Reduce();
-			Assert.AreEqual(cond.Chars, "智导");
+			Assert.Equal(cond.Chars, "智导");
 			cond = cond.Reduce();
-			Assert.AreEqual(cond.Chars, "导");
-			Assert.AreEqual(cond.Chars.LastSubString(2, '^'), "^导");
-			Assert.AreEqual(cond.Chars.LastSubString(0, '^'), "");
+			Assert.Equal(cond.Chars, "导");
+			Assert.Equal(cond.Chars.LastSubString(2, '^'), "^导");
+			Assert.Equal(cond.Chars.LastSubString(0, '^'), "");
 			cond = cond.Reduce();
-			Assert.AreEqual(cond.Chars, "");
-			Assert.AreEqual(cond1.Chars, "人智导");
+			Assert.Equal(cond.Chars, "");
+			Assert.Equal(cond1.Chars, "人智导");
 			Assert.Throws<InvalidOperationException>(() => cond = cond.Reduce());
 		}
 
-		[Test()]
+		[Fact]
 		public void TestPinyinDict()
 		{
-			var pydic = new PinyinDict("/Users/wangrunji/Documents/大学文件/大二下/课程文件/人工智能导论/拼音输入法/拼音汉字表/拼音汉字表.txt");
+		    var pydic = PinyinDict.Instance;
 			Assert.True(pydic.GetChars("you").Contains('有'));
 			Assert.True(!pydic.GetChars("you").Contains('没'));
 			Assert.True(pydic.GetPinyins('行').Contains("hang"));
 		}
 
-		//[Test]
+		//[Fact]
 		//public void TestModel2()
 		//{ 
 		//	var model = new NGram2Model_DictDict();
@@ -56,7 +53,7 @@ namespace PinyinAnalyzer.Test
 		//	Assert.Warn("Check the output.");
 		//}
 
-		//[Test]
+		//[Fact]
 		//public void TestModel3()
 		//{
 		//	var model = new NGram3Model();
@@ -65,7 +62,7 @@ namespace PinyinAnalyzer.Test
 		//	Assert.Warn("Check the output.");
 		//}
 
-		[Test]
+		[Fact]
 		public void TestDistribute()
 		{
 			var d1 = new Distribute<int>(new Dictionary<int, float>
@@ -82,19 +79,19 @@ namespace PinyinAnalyzer.Test
 			};
 			Distribute<int> d2 = d1.ExpandAndMerge(key => fd[key]);
 			d2.Print();
-			Assert.Warn("Check the output.");
+//			Assert.Warn("Check the output.");
 		}
 
-		[Test, Category("Basic")]
+		[Fact, Category("Basic")]
 		public void TestFormat()
 		{
 			int i = 1;
-			Assert.AreEqual($"{i:00}", "01");
+			Assert.Equal($"{i:00}", "01");
 			i = 11;
-			Assert.AreEqual($"{i:00}", "11");
+			Assert.Equal($"{i:00}", "11");
 		}
 
-		[Test, Category("Basic")]
+		[Fact, Category("Basic")]
 		public void TestJsonWriter()
 		{
 			using (var file = File.CreateText("/Users/wangrunji/Documents/大学文件/大二下/课程文件/人工智能导论/拼音输入法/JsonWriterTest.txt"))

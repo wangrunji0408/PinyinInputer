@@ -2,11 +2,10 @@
 using System.Linq;
 using System.IO;
 using System.Collections.Generic;
-using NUnit.Framework;
+using Xunit.Sdk;
 
 namespace PinyinAnalyzer.Test
 {
-	[TestFixture]
 	public class DataAnalyze
 	{
 		//public static int RareCharCount(this Statistic<char> stat, float rareRate)

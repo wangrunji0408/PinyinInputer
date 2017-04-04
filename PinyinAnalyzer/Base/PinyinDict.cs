@@ -49,8 +49,8 @@ namespace PinyinAnalyzer
 			Load(filePath);
 		}
 
-		static string defaultPath = $"/Users/wangrunji/Documents/大学文件/大二下/课程文件/人工智能导论/拼音输入法/拼音汉字表/拼音汉字表.txt";
-		static Lazy<PinyinDict> lazyInstance = new Lazy<PinyinDict>(() => new PinyinDict(defaultPath));
+		static Lazy<PinyinDict> lazyInstance = new Lazy<PinyinDict>(() =>
+		    new PinyinDict(GlobalConfig.DefaultPinyinFile));
 		public static PinyinDict Instance => lazyInstance.Value;
 	}
 }

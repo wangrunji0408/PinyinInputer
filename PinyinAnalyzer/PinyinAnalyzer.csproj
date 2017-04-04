@@ -10,8 +10,11 @@
     <Compile Remove="NGramModel\NGram123Model_Lambda.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.1" />
-    <PackageReference Include="NLog" Version="5.0.0-beta06" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json">
+      <Version>1.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="NGramModel\" />

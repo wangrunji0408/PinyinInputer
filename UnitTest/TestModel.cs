@@ -2,12 +2,12 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
-using NUnit.Framework;
 using Newtonsoft.Json;
+using Xunit;
+using Xunit.Sdk;
 
 namespace PinyinAnalyzer.Test
 {
-	[TestFixture]
 	public class TestModel
 	{
 		static string PATH_BASE = "/Users/wangrunji/Documents/大学文件/大二下/课程文件/人工智能导论/拼音输入法/";
@@ -23,7 +23,7 @@ namespace PinyinAnalyzer.Test
 			using (var inputFile = File.OpenText(testInputPath))
 			//using (var outputFile = File.CreateText(testOutputPath))
 				tester.TestData(inputFile, Console.Out);
-		    Assert.Inconclusive("Check the output.");
+//		    Assert("Check the output.");
 		}
 
 		public void BuildFromStat<TModel>()
@@ -35,67 +35,67 @@ namespace PinyinAnalyzer.Test
 			model.Save();
 		}
 
-		[Test]
+		[Fact]
 		public void TestNGram1_Build()
 		{
 			BuildFromStat<NGram1Model>();
 		}
 
-		[Test]
+		[Fact]
 		public void TestNGram2_Build()
 		{
 			BuildFromStat<NGram2Model>();
 		}
 
-		[Test]
+		[Fact]
 		public void TestNGram3_Build()
 		{
 			BuildFromStat<NGram3Model>();
 		}
 
-		[Test]
+		[Fact]
 		public void TestNGramN_Build()
 		{
 			BuildFromStat<NGramNModel>();
 		}
 
-		[Test]
+		[Fact]
 		public void TestNGram1()
 		{
 			TestOnData(NGramModelFileLoader.Load<NGram1Model>());
 		}
 
-		[Test]
+		[Fact]
 		public void TestNGram2()
 		{
 			TestOnData(NGramModelFileLoader.Load<NGram2Model>());
 		}
 
-		[Test]
+		[Fact]
 		public void TestNGram12_MaxN()
 		{
 			TestOnData(NGramModelFileLoader.Load12_MaxN());
 		}
 
-		[Test]
+		[Fact]
 		public void TestNGram12_Lambda()
 		{
 			TestOnData(NGramModelFileLoader.Load12_Lambda());
 		}
 
-		[Test]
+		[Fact]
 		public void TestNGram123_Lambda()
 		{
 			TestOnData(NGramModelFileLoader.Load123_Lambda());
 		}
 
-		[Test]
+		[Fact]
 		public void TestNGramN()
 		{
 			TestOnData(NGramModelFileLoader.Load<NGramNModel>());
 		}
 
-		//[Test]
+		//[Fact]
 		//public void NGramWriteToCsv()
 		//{
 		//	var model = NGramModelFileLoader.Load<NGram2Model_DictDict>();

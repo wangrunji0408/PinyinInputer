@@ -8,7 +8,7 @@ namespace PinyinAnalyzer
 	public class NGramBindModel : NGramModelBase
 	{
 		NGramModelBase[] Models { get; }
-		public Func<NGramModelBase[], Condition, Distribute<char>> MixDistributeStrategy { get; set; }
+		public Func<IEnumerable<Distribute<char>>, Distribute<char>> MixDistributeStrategy { get; set; }
 			= MixDistributeStrategy_MaxNotEmptyN;
 
 		public override PinyinDict PinyinDict
@@ -28,27 +28,26 @@ namespace PinyinAnalyzer
 
 		public override Distribute<char> GetDistribute(Condition condition)
 		{
-			return MixDistributeStrategy(Models, condition);
+		    var dtbs = Models.Take(Math.Min(condition.N, 2) + 1)
+		                    .Select(m => m.GetDistribute(condition));
+			return MixDistributeStrategy(dtbs);
 		}
 
-		public static Distribute<char> MixDistributeStrategy_MaxNotEmptyN(NGramModelBase[] models, Condition condition)
+		public static Distribute<char> MixDistributeStrategy_MaxNotEmptyN(IEnumerable<Distribute<char>> dtbs)
 		{
-			return models.Take(Math.Min(condition.N, 2) + 1)
-				      .Reverse()
-				      .Select(ng => ng.GetDistribute(condition))
-				      .First(dtb => !dtb.IsEmpty);
+			return dtbs.Last(dtb => !dtb.IsEmpty);
 		}
 
-		public static Distribute<char> MixDistributeStrategy_Lambda(NGramModelBase[] models, Condition condition)
+		public static Distribute<char> MixDistributeStrategy_Lambda(IEnumerable<Distribute<char>> dtbs)
 		{
-			var dict = new Dictionary<NGramModelBase, float>();
+			var dict = new Dictionary<Distribute<char>, float>();
 			float rest = 1, lambda = 0.75f;
-			foreach (var model in models.Reverse())
+			foreach (var dtb in dtbs.Reverse())
 			{
-				dict.Add(model, rest * lambda);
+				dict.Add(dtb, rest * lambda);
 				rest *= 1 - lambda;
 			}
-			return new Distribute<NGramModelBase>(dict).ExpandAndMerge(ng => ng.GetDistribute(condition));
+			return new Distribute<Distribute<char>>(dict).ExpandAndMerge(dtb => dtb);
 		}
 
 		public override void FromStatistician(TextStatistician stat)

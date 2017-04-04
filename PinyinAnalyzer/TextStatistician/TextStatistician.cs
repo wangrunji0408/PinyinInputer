@@ -3,7 +3,6 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
-using NLog;
 
 namespace PinyinAnalyzer
 {
@@ -13,7 +12,7 @@ namespace PinyinAnalyzer
 	public class TextStatistician
 	{
 		Statistic<string> Statistic { get; set; } = new Statistic<string>();
-		//static Logger logger = LogManager.GetCurrentClassLogger();
+
 		public int Total => Statistic["*"];
 
 		public TextStatistician()
