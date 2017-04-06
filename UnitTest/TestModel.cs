@@ -18,7 +18,7 @@ namespace PinyinAnalyzer.Test
 		{
 			PinyinDict pydict = model.PinyinDict;
 			var inputer = new NGramInputer(model);
-			var tester = new InputerTester(inputer, pydict);
+			var tester = new InputerTester(inputer);
 
 			using (var inputFile = File.OpenText(testInputPath))
 			//using (var outputFile = File.CreateText(testOutputPath))

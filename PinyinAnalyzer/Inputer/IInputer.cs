@@ -8,7 +8,9 @@ namespace PinyinAnalyzer
 	/// </summary>
 	public interface IInputer
 	{
-		/// <summary>
+	    string Name { get; }
+
+	    /// <summary>
 		/// 清空输入缓冲区。开始新的输入。
 		/// </summary>
 		void Clear();

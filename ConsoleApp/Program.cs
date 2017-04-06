@@ -90,14 +90,17 @@ namespace PinyinAnalyzer.ConsoleApp
 	[Verb("test", HelpText = "在指定测试集上测试模型")]
 	class TestOption : IOption
 	{
-		[Value(0, Required = true, HelpText = "模型名：1|2|3|n|12m|12l|123l")]
-		public string ModelName { get; set; }
+	    [Option('m', Required = true, HelpText = "模型名：1|2|3|n|12m|12l|123l")]
+	    public IEnumerable<string> ModelNames { get; set; }
 
-		[Value(1, Required = true, MetaName = "FILE")]
+		[Value(0, Required = true, MetaName = "FILE")]
 		public string InputFile { get; set; }
 
-		[Value(2, Required = false, MetaName = "FILE")]
+		[Value(1, Required = false, MetaName = "FILE")]
 		public string OutputFile { get; set; }
+
+	    [Option('f', Required = false, Default = "pinyin_chinese", HelpText = "测试输入格式 'pinyin_chinese': 拼音、中文交替, 'chinese_only': 每行只有中文")]
+	    public string Format { get; set; }
 	}
 
 	class Program
@@ -114,7 +117,7 @@ namespace PinyinAnalyzer.ConsoleApp
 				  .WithParsed<AnalyzeOption>(opt => Function.Analyze(opt.FilePaths, opt.Merge, opt.OutputFile, opt.OutputDir))
 				  .WithParsed<MergeOption>(opt => Function.Merge(opt.FilePaths, opt.OutputFile))
 			      .WithParsed<BuildOption>(opt => Function.BuildModel(opt.StatFile, opt.ModelNames))
-			      .WithParsed<TestOption>(opt => Function.TestOnData(opt.ModelName, opt.InputFile, opt.OutputFile));
+			      .WithParsed<TestOption>(opt => Function.TestOnData(opt.ModelNames, opt.InputFile, opt.OutputFile, opt.Format));
 			
 		}
 	}

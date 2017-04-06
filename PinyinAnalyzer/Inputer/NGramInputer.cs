@@ -9,7 +9,8 @@ namespace PinyinAnalyzer
 	/// </summary>
 	public class NGramInputer : FullPinyinInputer
 	{
-		NGramModelBase Model { get; }
+	    public override string Name => $"NGramInputer using model [{Model.GetType().Name}]";
+	    NGramModelBase Model { get; }
 		Distribute<string> distribute = Distribute<string>.Single("");
 		List<string> goodResults = new List<string>();
 

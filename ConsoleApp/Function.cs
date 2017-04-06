@@ -151,20 +151,23 @@ namespace PinyinAnalyzer.ConsoleApp
 			}
 		}
 
-		public static void TestOnData(string modelName, string inputFilePath, string outputFilePath)
+	    /// <summary>
+	    ///
+	    /// </summary>
+	    /// <param name="format">"chinese_only" | "pinyin_chinese"</param>
+		public static void TestOnData(IEnumerable<string> modelNames, string inputFilePath, string outputFilePath, string format)
 		{
-			var model = NGramModelFileLoader.LoadByName(modelName);
-			PinyinDict pydict = model.PinyinDict;
-			var inputer = new NGramInputer(model);
-			var tester = new InputerTester(inputer, pydict);
+			var models = modelNames.Select(name => NGramModelFileLoader.LoadByName(name));
+			var inputers = models.Select(model => new NGramInputer(model)).Cast<FullPinyinInputer>().ToArray();
+			var tester = new InputerTester(inputers);
 
 			using (var inputFile = File.OpenText(inputFilePath))
 			{
 				if (outputFilePath == null)
-					tester.TestData(inputFile, Console.Out);
+					tester.TestData(inputFile, Console.Out, format);
 				else
 					using (var outputFile = File.CreateText(outputFilePath))
-						tester.TestData(inputFile, outputFile);
+						tester.TestData(inputFile, outputFile, format);
 			}
 		}
 	}

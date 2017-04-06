@@ -15,8 +15,9 @@ namespace PinyinAnalyzer
 		public abstract void ConfirmSubResult(int index);
 
 		public string InputString { get; private set; }
+	    public virtual string Name => "FullPinyinInputer";
 
-		public virtual void Clear()
+	    public virtual void Clear()
 		{
 			InputString = "";
 			_pinyin = "";

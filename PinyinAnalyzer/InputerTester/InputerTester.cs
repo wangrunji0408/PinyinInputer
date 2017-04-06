@@ -2,47 +2,84 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace PinyinAnalyzer
 {
 	public class InputerTester
 	{
-		FullPinyinInputer Inputer { get; set; }
-		PinyinDict PinyinDict { get; set; }
-		public ModelCount Result { get; }
+		FullPinyinInputer[] Inputers { get; set; }
+	    PinyinDict PinyinDict => PinyinDict.Instance;
+		public Dictionary<FullPinyinInputer, ModelCount> Results { get; }
+	    int PrintToConsoleAfter { get; } = 10;
 
-		public InputerTester(FullPinyinInputer inputer, PinyinDict pydict)
+	    public InputerTester(params FullPinyinInputer[] inputers)
 		{
-			Inputer = inputer;
-			PinyinDict = pydict;
-			Result = new ModelCount();
+			Inputers = inputers;
+//			PinyinDict = pydict;
+		    Results = Inputers.ToDictionary(key => key, _ => new ModelCount());
 		}
 
-		public SentenseCompare TestSentense(string sentense)
+	    public SentenseCompare TestSentense(FullPinyinInputer inputer, string sentense, IEnumerable<string> pinyins)
 		{
-			var pinyins = sentense.Select(c => PinyinDict.GetPinyins(c).FirstOrDefault())
-								  .Where(s => s != "");
-			Inputer.Clear();
-			foreach (var pinyin in pinyins)
-				Inputer.Input(pinyin);
-			string result = "";
-			if(Inputer.Results.Count() != 0)
-				result = Inputer.Results.First();
-			return new SentenseCompare(sentense, result);
+		    string result = "";
+		    try
+		    {
+		        inputer.Clear();
+		        foreach (var pinyin in pinyins)
+		            inputer.Input(pinyin);
+		        result = inputer.Results.First();
+		    }
+		    catch (Exception e)
+		    {
+
+		    }
+		    return new SentenseCompare(sentense, result);
 		}
 
-		public void TestData(TextReader sentenseReader, TextWriter resultWriter = null)
+		public void TestData(TextReader reader, TextWriter resultWriter = null, string format = "chinese_only")
 		{
-			while (sentenseReader.Peek() != -1)
+		    resultWriter?.WriteLine("----- Inputer Test Report -----");
+		    for(int i=0; i<Inputers.Length; ++i)
+		        resultWriter?.WriteLine($"No.{i}: {Inputers[i].Name}");
+		    resultWriter?.WriteLine("-------------------------------");
+
+		    string chinese;
+		    IEnumerable<string> pinyins;
+			for (int i=0; reader.Peek() != -1; ++i)
 			{
-				var input = sentenseReader.ReadLine();
-				if (input == "")
-					continue;
-				var compare = TestSentense(input);
-				Result.Count(compare);
-				resultWriter?.WriteLine(compare);
+			    if (format == "pinyin_chinese")
+			    {
+			        pinyins = reader.ReadLine().Trim().ToLower().Split(' ');
+			        chinese = reader.ReadLine().Trim();
+			    }
+			    else if(format == "chinese_only")
+			    {
+                    chinese = reader.ReadLine().Trim();
+			        if(chinese == "")
+			            continue;
+			        pinyins = chinese.Select(c => PinyinDict.GetPinyins(c).FirstOrDefault())
+			                        .Where(s => s != null);
+			    }
+			    else
+			    {
+			        throw new ArgumentException(nameof(format));
+			    }
+			    var cmps = new SentenseCompareMultiple(chinese);
+			    foreach (var inputer in Inputers)
+			    {
+			        var compare = TestSentense(inputer, chinese, pinyins);
+			        Results[inputer].Count(compare);
+			        cmps.Add(inputer, compare);
+			    }
+			    resultWriter?.WriteLine(cmps);
+
+			    if(PrintToConsoleAfter != 0 && i % PrintToConsoleAfter == 0)
+			        Console.WriteLine($"Test Count = {i}");
 			}
-			resultWriter?.WriteLine(Result);
+		    resultWriter?.WriteLine("Results:");
+		    for(int i=0; i<Inputers.Length; ++i)
+			    resultWriter?.WriteLine($"{i}: {Results[Inputers[i]]}");
 		}
 
 		//string ToPinyin(string sentense)
@@ -81,9 +118,43 @@ namespace PinyinAnalyzer
 				                          				.Select(i => MismatchPosition.Contains(i) ? '＋' : '　'));
 				return string.Join("\n", Input, Result, pointers);
 			}
+
+		    public string DiffStr =>
+		        string.Concat(Enumerable.Range(0, Length)
+		            .Select(i => MismatchPosition.Contains(i) ? (i < Result.Length? Result[i]: '？') : '＋'));
 		}
 
-		public class ModelCount
+	    public class SentenseCompareMultiple
+	    {
+	        public string Std { get; }
+	        private List<SentenseCompare> Compares = new List<SentenseCompare>();
+
+	        public SentenseCompareMultiple(string std)
+	        {
+	            Std = std;
+	        }
+
+	        public void Add(FullPinyinInputer inputer, string result)
+	        {
+	            Compares.Add(new SentenseCompare(Std, result));
+	        }
+	        public void Add(FullPinyinInputer inputer, SentenseCompare compare)
+	        {
+	            Compares.Add(compare);
+	        }
+
+	        public override string ToString()
+	        {
+	            var builder = new StringBuilder();
+	            builder.Append("> ").AppendLine(Std);
+	            int i = 0;
+	            foreach (var cmp in Compares)
+	                builder.Append($"{i++} ").AppendLine(cmp.DiffStr);
+	            return builder.ToString();
+	        }
+	    }
+
+	    public class ModelCount
 		{
 			//public string ModelName { get; }
 			public int CountChar { get; private set; }
@@ -107,7 +178,7 @@ namespace PinyinAnalyzer
 			}
 
 			public override string ToString()
-				=> $"\nChar: {MatchRateChar}\nSentense: {MatchRateSentence}";
+				=> $"Char: {MatchRateChar}\tSentence: {MatchRateSentence}";
 		}
 	}
 }
