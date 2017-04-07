@@ -11,9 +11,13 @@ namespace PinyinAnalyzer
 	{
 		// Shared Property
 		public virtual PinyinDict PinyinDict { get; set; } = PinyinDict.Instance;
+	    public string SourceName { get; private set; }
 
-		// Abstract Method
-		public abstract void FromStatistician(TextStatistician stat);
+	    // Abstract Method
+	    public virtual void FromStatistician(TextStatistician stat)
+	    {
+	        SourceName = stat.SourceName;
+	    }
 		public abstract Distribute<char> GetDistribute(string pre);
 		public virtual void Compress() 
 		{

@@ -19,6 +19,7 @@ namespace PinyinAnalyzer
 		}
 		public override void FromStatistician(TextStatistician stat)
 		{
+		    base.FromStatistician(stat);
 			var statByChar = new Dictionary<char, Statistic<char>>();
 			foreach (var pair in stat.StringFrequency)
 			{

@@ -33,7 +33,7 @@ namespace PinyinAnalyzer
 		{
 			foreach (var pair in dict)
 				this.dict.Add(pair.Key, pair.Value);
-			Normalize();
+//			Normalize();
 		}
 
 		static public Distribute<T> Empty()
@@ -50,7 +50,7 @@ namespace PinyinAnalyzer
 
 		static public Distribute<T> Evenly(params T[] keys)
 		{
-			return new Distribute<T>(keys.Select(key => new KeyValuePair<T, float>(key, 1)));
+			return new Distribute<T>(keys.Select(key => new KeyValuePair<T, float>(key, 1f / keys.Length)));
 		}
 
 		void Normalize()
@@ -61,7 +61,14 @@ namespace PinyinAnalyzer
 			dict = dict.ToDictionary(pair => pair.Key, pair => pair.Value / sum);
 		}
 
-		public Distribute<T> Where(Func<T, bool> prediction)
+	    public Distribute<T> Norm()
+	    {
+            var dtb = new Distribute<T>(dict);
+	        dtb.Normalize();
+	        return dtb;
+	    }
+
+	    public Distribute<T> Where(Func<T, bool> prediction)
 		{
 			return new Distribute<T>(dict.Where(pair => prediction(pair.Key)));
 		}
@@ -86,7 +93,7 @@ namespace PinyinAnalyzer
 			return new Distribute<T1>(newPairs);
 		}
 
-		public Distribute<T> ExpandAndMerge(Func<T, Distribute<T>> func)
+		public Distribute<T> ExpandAndMerge(Func<T, Distribute<T>> func, bool norm = true)
 			=> ExpandAndMerge<T>(func);
 
 		public void Print()

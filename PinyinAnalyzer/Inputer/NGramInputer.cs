@@ -9,13 +9,15 @@ namespace PinyinAnalyzer
 	/// </summary>
 	public class NGramInputer : FullPinyinInputer
 	{
-	    public override string Name => $"NGramInputer using model [{Model.GetType().Name}]";
+	    public override string Name => $"NGramInputer using [{Model.GetType().Name}] [{Model.SourceName}]";
 	    NGramModelBase Model { get; }
 		Distribute<string> distribute = Distribute<string>.Single("");
 		List<string> goodResults = new List<string>();
+	    public int TakeSize { get; set; } = 10;
 
-		public bool TraceDistribute { get; set; } = true;
-		public int PrintDistributeSize { get; set; } = 0;
+	    public bool TraceDistribute { get; set; } = false;
+	    public bool MakeGoodResults { get; set; } = false;
+	    public int PrintDistributeSize { get; set; } = 0;
 		public List<Distribute<string>> Distributes { get; } = new List<Distribute<string>>();
 
 		public NGramInputer(NGramModelBase model)
@@ -39,12 +41,14 @@ namespace PinyinAnalyzer
 
 		public override void Input(string pinyin)
 		{
-			distribute = distribute.ExpandAndMerge(str =>
-												   Model.GetDistribute(new Condition(str, pinyin))
-												   .Take(10)
-												   .Select(c => str + c))
-								   .Take(10);
-			goodResults.AddRange(distribute.KeyProbDescending
+		    distribute = distribute.ExpandAndMerge(str =>
+		            Model.GetDistribute(new Condition(str, pinyin))
+						.Take(TakeSize)
+		                .Select(c => str + c))
+		            .Take(TakeSize)
+		            .Norm();
+		    if(MakeGoodResults)
+			    goodResults.AddRange(distribute.KeyProbDescending
 											 .TakeWhile(pair => pair.Value > 0.2)
 											 .Reverse()
 											 .Select(pair => pair.Key));

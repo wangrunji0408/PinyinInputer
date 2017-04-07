@@ -11,9 +11,11 @@ namespace PinyinAnalyzer
 	/// </summary>
 	public class TextStatistician
 	{
-		Statistic<string> Statistic { get; set; } = new Statistic<string>();
+	    public string SourceName { get; private set; }
+	    Statistic<string> Statistic { get; set; } = new Statistic<string>();
+	    public float MinRate { get; set; } = 1e-6f;
 
-		public int Total => Statistic["*"];
+	    public int Total => Statistic["*"];
 
 		public TextStatistician()
 		{
@@ -39,7 +41,6 @@ namespace PinyinAnalyzer
 
 		IEnumerable<string> DynamicSubStringSelector(string str)
 		{
-			const float rate = 1e-5f;
 			var builder = new StringBuilder();
 			for (int i = 0; i < str.Length; ++i)
 			{
@@ -48,7 +49,7 @@ namespace PinyinAnalyzer
 				yield return builder.ToString();
 				for (int j = i + 1; j < str.Length; ++j)
 				{
-					if (Statistic[builder.ToString()] < Math.Max(5, Total * rate))
+					if (Statistic[builder.ToString()] < Math.Max(5, Total * MinRate))
 						break;
 					builder.Append(str[j]);
 					yield return builder.ToString();
@@ -122,6 +123,7 @@ namespace PinyinAnalyzer
 
 		public void Load(string filePath)
 		{
+		    SourceName = new FileInfo(filePath).Name;
 			using (var file = File.OpenText(filePath))
 				Statistic.ReadFromCsv(file, str => str);
 		}

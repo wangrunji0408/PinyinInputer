@@ -21,13 +21,13 @@ namespace PinyinAnalyzer
 		public override Distribute<char> GetDistribute(Condition condition)
 		{
 			var list = new List<Distribute<char>>();
-			for (int n = 0; ; ++n)
+			for (int n = 0; n < 6; ++n)
 			{
 				var dtb = dict.GetOrDefault(condition.Chars.LastSubString(n, ' '));
 				if (condition.Pinyin != null)
 					dtb = dtb.Where(c => PinyinDict.GetPinyins(c).Contains(condition.Pinyin));
-				if (dtb.IsEmpty)
-					break;
+//				if (dtb.IsEmpty)
+//					break;
 				list.Add(dtb);
 			}
 			//Console.WriteLine($"{condition} {list.Count-1}");
@@ -39,6 +39,7 @@ namespace PinyinAnalyzer
 		}
 		public override void FromStatistician(TextStatistician stat)
 		{
+		    base.FromStatistician(stat);
 			var statByPre = new Dictionary<string, Statistic<char>>();
 			foreach (var pair in stat.StringFrequency)
 			{

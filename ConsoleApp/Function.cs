@@ -5,18 +5,43 @@ using System.Collections.Generic;
 
 namespace PinyinAnalyzer.ConsoleApp
 {
-	public static class Function
+	static class Function
 	{
-		public static void Analyze(IEnumerable<string> filePaths, bool merge, string outputFile = null, string outputDir = null)
+		public static void Analyze(AnalyzeOption opt)
 		{
-			if (merge)
-				TextStatistic.AnalyzeFiles(filePaths, outputFile);
+		    TextStatistic.MinRate = opt.MinRate;
+		    TextStatistic.Strategy = opt.Strategy;
+			if (opt.Merge)
+				TextStatistic.AnalyzeFiles(opt.FilePaths, opt.OutputFile);
 		    else
-			    TextStatistic.AnalyzeFilesSeparately(filePaths, outputDir);
+			    TextStatistic.AnalyzeFilesSeparately(opt.FilePaths, opt.OutputDir);
 		}
 
-		public static void Merge(IEnumerable<string> filePaths, string outputFile)
+	    public static void ConvStat(ConvStatOption opt)
+	    {
+	        if (opt.Merge)
+	        {
+	            var conv = new WordDataConverter();
+	            foreach (var filePath in opt.FilePaths)
+                    conv.Load(filePath, opt.Format);
+	            conv.Save(opt.OutputFile);
+	        }
+	        else
+	        {
+	            foreach (var filePath in opt.FilePaths)
+	            {
+	                var fileInfo = new FileInfo(filePath);
+	                var outFilePath = $"{opt.OutputDir ?? fileInfo.DirectoryName}/{fileInfo.Name}_stat.csv";
+	                var conv = new WordDataConverter();
+	                conv.Load(filePath, opt.Format);
+	                conv.Save(outFilePath);
+	            }
+	        }
+	    }
+
+		public static void Merge(IEnumerable<string> filePaths, string outputFile, float rate = 0)
 		{
+		    TextStatistic.MinRate = rate;
 			TextStatistic.MergeFiles(filePaths, outputFile);
 		}
 
@@ -40,7 +65,7 @@ namespace PinyinAnalyzer.ConsoleApp
 		{
 			NGramModelBase model = NGramModelFileLoader.LoadByName(modelName);
 			var inputer = new NGramInputer(model);
-			inputer.PrintDistributeSize = 3;
+			inputer.PrintDistributeSize = 5;
 			Console.WriteLine($"Using model: {model.GetType().Name}");
 
 			while (true)
@@ -151,23 +176,33 @@ namespace PinyinAnalyzer.ConsoleApp
 			}
 		}
 
-	    /// <summary>
-	    ///
-	    /// </summary>
-	    /// <param name="format">"chinese_only" | "pinyin_chinese"</param>
-		public static void TestOnData(IEnumerable<string> modelNames, string inputFilePath, string outputFilePath, string format)
+		public static void TestOnData(TestOption opt)
 		{
-			var models = modelNames.Select(name => NGramModelFileLoader.LoadByName(name));
+		    IEnumerable<NGramModelBase> models;
+		    if (opt.StatFiles == null)
+		        models = opt.ModelNames.Select(NGramModelFileLoader.LoadByName);
+		    else
+		    {
+		        models = from stat in opt.StatFiles.Select(path => new TextStatistician(path))
+		            from model in opt.ModelNames.Select(name =>
+		            {
+		                var model = NGramModelFileLoader.NewByName(name);
+		                Console.WriteLine($"Built model: [{name}] from [{stat.SourceName}]");
+		                model.FromStatistician(stat);
+		                return model;
+		            })
+		            select model;
+		    }
 			var inputers = models.Select(model => new NGramInputer(model)).Cast<FullPinyinInputer>().ToArray();
 			var tester = new InputerTester(inputers);
 
-			using (var inputFile = File.OpenText(inputFilePath))
+			using (var inputFile = File.OpenText(opt.InputFile))
 			{
-				if (outputFilePath == null)
-					tester.TestData(inputFile, Console.Out, format);
+				if (opt.OutputFile == null)
+					tester.TestData(inputFile, Console.Out, opt.Format);
 				else
-					using (var outputFile = File.CreateText(outputFilePath))
-						tester.TestData(inputFile, outputFile, format);
+					using (var outputFile = File.CreateText(opt.OutputFile))
+						tester.TestData(inputFile, outputFile, opt.Format);
 			}
 		}
 	}

@@ -7,10 +7,10 @@ namespace PinyinAnalyzer
 {
 	public static class TextStatistic
 	{
-		//static string path = "/Users/wangrunji/Documents/大学文件/大二下/课程文件/人工智能导论/拼音输入法/";
-		//static string statPath = $"{path}stat.csv";
+	    public static float MinRate { get; set; } = 1e-6f;
+	    public static string Strategy { get; set; } = "n";
 
-		static void DoAndPrintTime(Action action, string title = "")
+	    static void DoAndPrintTime(Action action, string title = "")
 		{
 			if (title == "")
 				title = action.ToString();
@@ -34,7 +34,7 @@ namespace PinyinAnalyzer
 			if(append)
 				statistician.Load(statPath);
 			AnalyzeFiles(statistician, filePaths);
-			statistician.RemoveLowFrequency((int)(statistician.Total * 1e-6));
+			statistician.RemoveLowFrequency((int)(statistician.Total * MinRate));
 			DoAndPrintTime(() => statistician.Save(statPath), $"Writing to file: {statPath}");
 		}
 
@@ -48,7 +48,7 @@ namespace PinyinAnalyzer
 				DoAndPrintTime(() => 
 				{ 
 					statistician.AnalyzeFile(filePath);
-					statistician.RemoveLowFrequency((int)(statistician.Total * 1e-6));
+					statistician.RemoveLowFrequency((int)(statistician.Total * MinRate));
 					statistician.Save(outFilePath);
 				}, $"Analyze: {filePath}");
 			}
@@ -60,19 +60,19 @@ namespace PinyinAnalyzer
 			foreach (var filePath in filePaths)
 				DoAndPrintTime(() => stat.MergeFrom(new TextStatistician(filePath)),
 				               $"Merge: {filePath}");
+		    DoAndPrintTime(() => stat.RemoveLowFrequency((int) (stat.Total * MinRate)), $"Remove low frequency ({MinRate})");
 			DoAndPrintTime(() => stat.Save(outFilePath), $"Save to {outFilePath}");
 		}
 
 		public static void RemoveLowFrequency(string statPath)
 		{
-			float rate = 1e-6f;
 			DoAndPrintTime(() =>
 			{
 				var statistician = new TextStatistician();
 				statistician.Load(statPath);
-				statistician.RemoveLowFrequency((int)(statistician.Total * rate));
+				statistician.RemoveLowFrequency((int)(statistician.Total * MinRate));
 				statistician.Save(statPath);
-			}, $"Remove low frequency ({rate}): {statPath}");
+			}, $"Remove low frequency ({MinRate}): {statPath}");
 		}
 	}
 }

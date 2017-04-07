@@ -1,6 +1,3 @@
-using System;
-using System.IO;
-using System.Linq;
 using System.Collections.Generic;
 using CommandLine;
 
@@ -66,6 +63,12 @@ namespace PinyinAnalyzer.ConsoleApp
 
 	    [Option('d', HelpText = "输出目录。若不指定则为每个文件的所在目录。")]
 	    public string OutputDir { get; set; }
+
+	    [Option('r', Default = 0, HelpText = "保存时去掉频率低于此的项")]
+	    public float MinRate { get; set; }
+
+//	    [Option('s', Default = "n", HelpText = "分析策略。1|2|3|n")]
+	    public string Strategy { get; set; }
 	}
 
 	[Verb("merge", HelpText = "合并统计文件")]
@@ -76,7 +79,29 @@ namespace PinyinAnalyzer.ConsoleApp
 
 		[Option('o', Required = true, HelpText = "合并后保存到的文件地址")]
 		public string OutputFile { get; set; }
+
+	    [Option('r', Default = 0, HelpText = "保存时去掉频率低于此的项")]
+	    public float MinRate { get; set; }
 	}
+
+    [Verb("convstat", HelpText = "将外部词库文件转为统计文件")]
+    class ConvStatOption : IOption
+    {
+        [Value(0, MetaName = "FILE", Required = true, HelpText = "待转换文件")]
+        public IEnumerable<string> FilePaths { get; set; }
+
+        [Option('m', HelpText = "是否合并统计结果。若是，需指定输出文件地址。")]
+        public bool Merge { get; set; }
+
+        [Option('o', HelpText = "输出文件地址")]
+        public string OutputFile { get; set; }
+
+        [Option('d', HelpText = "输出目录。若不指定则为每个文件的所在目录。")]
+        public string OutputDir { get; set; }
+
+        [Option('f', Default = "wordlist", Required = true, HelpText = "输入文件格式: 'wordlist' | 'wordcount' | 'wordcount_force1'")]
+        public string Format { get; set; }
+    }
 
 	[Verb("build", HelpText = "根据统计文件生成语言模型")]
 	class BuildOption : IOption
@@ -93,7 +118,10 @@ namespace PinyinAnalyzer.ConsoleApp
 	    [Option('m', Required = true, HelpText = "模型名：1|2|3|n|12m|12l|123l")]
 	    public IEnumerable<string> ModelNames { get; set; }
 
-		[Value(0, Required = true, MetaName = "FILE")]
+	    [Option('s', HelpText = "统计文件。若指定，则现场生成模型。")]
+	    public IEnumerable<string> StatFiles { get; set; }
+
+	    [Value(0, Required = true, MetaName = "FILE")]
 		public string InputFile { get; set; }
 
 		[Value(1, Required = false, MetaName = "FILE")]
@@ -108,16 +136,17 @@ namespace PinyinAnalyzer.ConsoleApp
 		static void Main(string[] args)
 		{
 			var result = CommandLine.Parser.Default.ParseArguments
-			                        <QPinyinOption, QSolveOption, QModelOption, QStatOption, SolveOption, AnalyzeOption, MergeOption, BuildOption, TestOption>(args);
+			                        <QPinyinOption, QSolveOption, QModelOption, QStatOption, SolveOption, AnalyzeOption, ConvStatOption, MergeOption, BuildOption, TestOption>(args);
 			result.WithParsed<QPinyinOption>(opt => Function.QPinyin(opt.FilePath))
 				  .WithParsed<QSolveOption>(opt => Function.QSolve(opt.ModelName))
 				  .WithParsed<QModelOption>(opt => Function.QModel(opt.ModelName))
 				  .WithParsed<QStatOption>(opt => Function.QStatistic(opt.FilePath))
 				  .WithParsed<SolveOption>(opt => Function.Solve(opt.InputFile, opt.OutputFile, opt.ModelName))
-				  .WithParsed<AnalyzeOption>(opt => Function.Analyze(opt.FilePaths, opt.Merge, opt.OutputFile, opt.OutputDir))
-				  .WithParsed<MergeOption>(opt => Function.Merge(opt.FilePaths, opt.OutputFile))
+				  .WithParsed<AnalyzeOption>(opt => Function.Analyze(opt))
+		          .WithParsed<ConvStatOption>(opt => Function.ConvStat(opt))
+				  .WithParsed<MergeOption>(opt => Function.Merge(opt.FilePaths, opt.OutputFile, opt.MinRate))
 			      .WithParsed<BuildOption>(opt => Function.BuildModel(opt.StatFile, opt.ModelNames))
-			      .WithParsed<TestOption>(opt => Function.TestOnData(opt.ModelNames, opt.InputFile, opt.OutputFile, opt.Format));
+			      .WithParsed<TestOption>(opt => Function.TestOnData(opt));
 			
 		}
 	}
