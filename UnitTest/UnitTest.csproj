@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
+    <PackageReference Include="xunit" Version="2.2.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PinyinAnalyzer\PinyinAnalyzer.csproj">
+      <Project>{c5d4d26d-1ec1-46fd-9dcf-b3014c453012}</Project>
+      <Name>PinyinAnalyzer</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>
